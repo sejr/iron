@@ -1,0 +1,126 @@
+////////////////////////////////////////////////////////////////////////////////
+//                   _          _           _            _                    //
+//                  /\ \       /\ \        /\ \         /\ \     _            //
+//                  \ \ \     /  \ \      /  \ \       /  \ \   /\_\          //
+//                  /\ \_\   / /\ \ \    / /\ \ \     / /\ \ \_/ / /          //
+//                 / /\/_/  / / /\ \_\  / / /\ \ \   / / /\ \___/ /           //
+//                / / /    / / /_/ / / / / /  \ \_\ / / /  \/____/            //
+//               / / /    / / /__\/ / / / /   / / // / /    / / /             //
+//              / / /    / / /_____/ / / /   / / // / /    / / /              //
+//          ___/ / /__  / / /\ \ \  / / /___/ / // / /    / / /               //
+//         /\__\/_/___\/ / /  \ \ \/ / /____\/ // / /    / / /                //
+//         \/_________/\/_/    \_\/\/_________/ \/_/     \/_/                 //
+//                                                                            //
+//                    L A N G U A G E     G R A M M A R                       //
+//                                                                            //
+// LAST REVISED 28 DECEMBER, 2018                                             //
+//                                                                            //
+// The purpose of this document is to provide a SINGLE SOURCE OF TRUTH for    //
+// the syntax of the Iron programming language. Any proposals to the language //
+// that include syntax modifications must include an updated version of this  //
+// grammar. Because we use Pest to generate the Iron language parser, the     //
+// test suite will fail if syntax changes are not implemented correctly.      //
+//                                                                            //
+// For those new to programming language design, this is known as a CONTEXT-  //
+// FREE GRAMMAR (CFG), which consists of a set of PRODUCTION RULES. Starting  //
+// from the top-level rule (MODULE), we recursively determine if a program is //
+// written correctly. If there is a syntax error, we can tell the programmer  //
+// where it occurs. If not, we move onto the next compilation phase.          //
+//                                                                            //
+// For more information on context-free grammars:                             //
+// https://www.cs.rochester.edu/~nelson/courses/csc_173/grammars/cfg.html     //
+//                                                                            //
+////////////////////////////////////////////////////////////////////////////////
+
+// The MODULE is the highest-level abstraction in an Iron program. It is simply
+// a file with the appropriate extension (".fe"), which contains Iron code.
+// Modules can export functions, types, protocols, and other objects by marking
+// them as PUBLIC.
+module = { statement_list }
+
+// An Iron module consists of one or more STATEMENTS.
+statement_list = _{ statement+ }
+statement = { import | function }
+
+// The IMPORT statement allows us to retrieve Iron code from some external
+// location. You can import an entire module or specific public components.
+import = { 
+    ("import" 
+        ~ open_brace ~ identifier_list ~ close_brace
+        ~ "from" ~ string_literal)
+}
+
+// The FUNCTION statement allows us to define a named sequence of operations
+// that work on zero or more provided parameters. We can also return zero or
+// more values.
+function = {
+    ("function"
+        ~ identifier
+        ~ function_parameter_list?
+        ~ returns?
+        ~ open_brace
+        ~ close_brace)
+}
+
+// The function parameter list contains one or more function parameters.
+function_parameter_list = {
+    open_paren ~ function_parameter 
+        ~ (comma ~ function_parameter)* 
+        ~ close_paren
+}
+
+// Function parameters in Iron are inspired by Swift. They are typed, and offer
+// a label system that helps developers write more verbose code.
+function_parameter = { (label ~ identifier ~ colon ~ kind) }
+
+returns = { thin_arrow ~ kind ~ (comma ~ kind)* }
+
+label = { identifier | underscore }
+identifier = @{ (ASCII_ALPHA ~ ASCII_ALPHANUMERIC*) }
+identifier_list = { identifier ~ (comma ~ identifier)* }
+
+kind = {
+    identifier
+    | (open_paren ~ identifier_list ~ close_paren)
+    | (open_bracket ~ identifier ~ close_bracket)
+    | (open_bracket ~ open_paren
+        ~ identifier_list ~ close_paren ~ close_bracket)
+}
+
+// This section contains various tokens that need to be caught by the Pest
+// parser generator. This allows us to quickly verify correctness of many things
+// like arrays, tuples, function parameter lists, etc.
+comma = { ","}
+colon = { ":" }
+underscore = { "_" }
+open_paren = { "(" }
+close_paren = { ")" }
+open_bracket = { "[" }
+close_bracket = { "]" }
+open_brace = { "{" }
+close_brace = { "}" }
+thin_arrow = { "->" }
+wide_arrow = { "=>" }
+
+
+boolean = { "true" | "false" }
+null = { "null" }
+string_literal = ${ "\"" ~ string ~ "\"" }
+string = @{ char* }
+char = {
+    !("\"" | "\\") ~ ANY
+    | "\\" ~ ("\"" | "\\" | "/" | "b" | "f" | "n" | "r" | "t")
+    | "\\" ~ ("u" ~ ASCII_HEX_DIGIT{4})
+}
+
+number = @{
+    "-"?
+    ~ ("0" | ASCII_NONZERO_DIGIT ~ ASCII_DIGIT*)
+    ~ ("." ~ ASCII_DIGIT*)?
+    ~ (^"e" ~ ("+" | "-")? ~ ASCII_DIGIT+)?
+}
+
+// These rules enable implicit whitespace. For more information, visit:
+// https://pest.rs/book/grammars/syntax.html#implicit-whitespace
+WHITESPACE = _{ " " | "\n" | "\r" }
+COMMENT = _{ "/*" ~ (!"*/" ~ ANY)* ~ "*/" }

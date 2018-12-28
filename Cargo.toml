@@ -1,0 +1,10 @@
+[package]
+name = "iron"
+version = "0.0.1"
+authors = ["Samuel Roth <sam@roth.fyi>"]
+edition = "2018"
+
+[dependencies]
+clap = "2.32.0"
+pest = "2.1.0"
+pest_derive = "2.1.0"
