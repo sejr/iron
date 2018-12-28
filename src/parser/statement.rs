@@ -2,7 +2,7 @@ use crate::parser::{ import, function, Rule };
 
 #[derive(Debug)]
 pub enum Statement {
-    Import,
+    Import { path: String },
     Function,
     Error
 }

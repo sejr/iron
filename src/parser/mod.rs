@@ -5,6 +5,7 @@ pub mod module;
 pub mod statement;
 pub mod function;
 pub mod import;
+pub mod string;
 
 #[derive(Parser)]
 #[grammar = "../grammar/iron.pest"]
