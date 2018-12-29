@@ -5,8 +5,8 @@
 <h1 align="center">Iron</h1>
 
 <p align="center">
-  <a href="https://circleci.com/gh/sejr/iron">
-    <img src="https://circleci.com/gh/sejr/iron.svg?style=svg" />
+  <a href="https://travis-ci.org/sejr/iron">
+    <img src="https://travis-ci.org/sejr/iron.svg?branch=master" />
   </a>
   <a href="https://codecov.io/gh/sejr/iron">
     <img src="https://codecov.io/gh/sejr/iron/branch/master/graph/badge.svg" />
