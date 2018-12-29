@@ -11,6 +11,9 @@
   <a href="https://codecov.io/gh/sejr/iron">
     <img src="https://codecov.io/gh/sejr/iron/branch/master/graph/badge.svg" />
   </a>
+  <a href="https://join.slack.com/t/ironlang/shared_invite/enQtNTEyODMwMDk4MDY1LTYzMWNkOTRlNzM1YmE2Mzk4MjRmZjE3NzhiM2FkOGVlMjhjYThkODlhY2MzMTVlYWJkN2Y0YzIyNjE3MDkwN2Y">
+    <img src="https://img.shields.io/badge/slack-join-08d187.svg" />
+  </a>
 </p>
 
 > Iron is a new programming language that emphasizes speed, safety, and usability. It is extremely easy to learn and extremely difficult to write incorrect code. It is built with Rust and works on any platform.
