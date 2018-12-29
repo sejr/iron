@@ -39,7 +39,7 @@
 module = { statement_list }
 
 // An Iron module consists of one or more STATEMENTS.
-statement_list = _{ statement+ }
+statement_list = _{ statement* }
 statement = { import | function }
 
 // The IMPORT statement allows us to retrieve Iron code from some external
@@ -48,6 +48,8 @@ import = {
     ("import" 
         ~ open_brace ~ identifier_list ~ close_brace
         ~ "from" ~ string_literal)
+    | ("import" ~ string_literal ~ "as" ~ identifier)
+    | ("import" ~ string_literal)
 }
 
 // The FUNCTION statement allows us to define a named sequence of operations
