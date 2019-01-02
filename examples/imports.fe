@@ -1,3 +1,2 @@
-import "@/types/Apple"
-import "@/types/Orange" as TestOrange
-import { Banana } from "https://www.github.com/sejr/banana/1.24.2"
+import "./types/Apple"
+import "./types/Orange" as TestOrange

@@ -40,7 +40,27 @@ module = { statement_list }
 
 // An Iron module consists of one or more STATEMENTS.
 statement_list = _{ statement* }
-statement = { import | function }
+statement = {
+    import
+    | function
+    | custom_type
+}
+
+public = { "public" }
+
+custom_type = {
+    (public? ~ "type"
+        ~ identifier
+        ~ open_brace
+        ~ attribute_list
+        ~ close_brace)
+}
+
+attribute_list = {
+    attribute ~ (comma ~ attribute)?
+}
+
+attribute = { identifier ~ colon ~ kind }
 
 // The IMPORT statement allows us to retrieve Iron code from some external
 // location. You can import an entire module or specific public components.
@@ -56,7 +76,7 @@ import = {
 // that work on zero or more provided parameters. We can also return zero or
 // more values.
 function = {
-    ("function"
+    (public? ~ "function"
         ~ identifier
         ~ function_parameter_list?
         ~ returns?

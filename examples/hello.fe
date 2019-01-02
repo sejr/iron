@@ -1,3 +1,7 @@
+function sayHello(to name: String) -> String {
+    return "Hello, ${name}!"
+}
+
 function main {
-    /* io.printLine("Hello world!) */
+    printLine(sayHello(to: "world"))
 }
