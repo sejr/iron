@@ -5,6 +5,9 @@
 <h1 align="center">Iron</h1>
 
 <p align="center">
+  <a href="https://join.slack.com/t/ironlang/shared_invite/enQtNTEyODMwMDk4MDY1LTYzMWNkOTRlNzM1YmE2Mzk4MjRmZjE3NzhiM2FkOGVlMjhjYThkODlhY2MzMTVlYWJkN2Y0YzIyNjE3MDkwN2Y">
+    <img src="https://img.shields.io/badge/slack-join-08d187.svg" />
+  </a>
   <a href="https://travis-ci.org/sejr/iron">
     <img src="https://travis-ci.org/sejr/iron.svg?branch=master" />
   </a>
