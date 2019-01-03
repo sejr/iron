@@ -1,10 +1,11 @@
+use pest::iterators::Pair;
 use crate::parser::{
     Rule,
     string,
     statement::Statement
 };
 
-pub fn parse(import: pest::iterators::Pair<'_, Rule>) -> Statement {
+pub fn parse(import: Pair<Rule>) -> Statement {
     let mut path: String = String::new();
     let mut identifier: Option<String> = None;
     for node in import.clone().into_inner() {

@@ -1,4 +1,5 @@
-use crate::parser::{ import, function, custom_type, Rule };
+use pest::iterators::Pair;
+use crate::parser::{ import, function, expression, custom_type, Rule };
 
 #[derive(Debug)]
 pub enum Statement {
@@ -7,15 +8,21 @@ pub enum Statement {
         identifier: Option<String>
     },
     Type {
+        public: bool,
         name: String,
-        attributes: Vec<(String, String)>,
-        public: bool
+        attributes: Vec<(String, String)>
     },
-    Function,
+    Function {
+        public: bool,
+        name: String,
+        parameters: Option<Vec<function::Parameter>>,
+        returns: Option<Vec<String>>,
+        body: Vec<expression::Expression>
+    },
     Error
 }
 
-pub fn parse(statement: pest::iterators::Pair<'_, Rule>) -> Statement {
+pub fn parse(statement: Pair<Rule>) -> Statement {
     let mut s: Statement = Statement::Error;
     let mut _public: bool = false;
     for node in statement.into_inner() {

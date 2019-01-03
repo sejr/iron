@@ -81,6 +81,7 @@ function = {
         ~ function_parameter_list?
         ~ returns?
         ~ open_brace
+        ~ expression*
         ~ close_brace)
 }
 
@@ -112,21 +113,59 @@ kind = {
 // This section contains various tokens that need to be caught by the Pest
 // parser generator. This allows us to quickly verify correctness of many things
 // like arrays, tuples, function parameter lists, etc.
-comma = { ","}
-colon = { ":" }
-underscore = { "_" }
-open_paren = { "(" }
-close_paren = { ")" }
-open_bracket = { "[" }
-close_bracket = { "]" }
-open_brace = { "{" }
-close_brace = { "}" }
-thin_arrow = { "->" }
-wide_arrow = { "=>" }
+comma = _{ ","}
+colon = _{ ":" }
+underscore = _{ "_" }
+open_paren = _{ "(" }
+close_paren = _{ ")" }
+open_bracket = _{ "[" }
+close_bracket = _{ "]" }
+open_brace = _{ "{" }
+close_brace = _{ "}" }
+thin_arrow = _{ "->" }
+wide_arrow = _{ "=>" }
 
+value = {
+    identifier
+    | string_literal
+    | numeric_value
+    | boolean_value
+    | null_value
+}
 
-boolean = { "true" | "false" }
-null = { "null" }
+// Order matters here. Specifically, we have value in the last position because
+// otherwise, it would be caught first and other statements like function calls
+// would not be handled correctly.
+expression = {
+    assignment
+    | function_call
+    | value 
+}
+
+assignment = {
+    ("let" | "const")
+    ~ identifier
+    ~ (":" ~ kind)?
+    ~ "="
+    ~ expression
+}
+
+function_call = {
+    identifier
+    ~ open_paren
+    ~ function_arg_list?
+    ~ close_paren
+}
+
+function_arg_list = { function_arg ~ (comma ~ function_arg)* }
+function_arg = { (label ~ ":")? ~ expression }
+
+numeric_value = @{
+    "-"?
+    ~ ("0" | ASCII_NONZERO_DIGIT ~ ASCII_DIGIT*)
+    ~ ("." ~ ASCII_DIGIT*)?
+    ~ (^"e" ~ ("+" | "-")? ~ ASCII_DIGIT+)?
+}
 string_literal = ${ "\"" ~ string ~ "\"" }
 string = @{ char* }
 char = {
@@ -134,13 +173,8 @@ char = {
     | "\\" ~ ("\"" | "\\" | "/" | "b" | "f" | "n" | "r" | "t")
     | "\\" ~ ("u" ~ ASCII_HEX_DIGIT{4})
 }
-
-number = @{
-    "-"?
-    ~ ("0" | ASCII_NONZERO_DIGIT ~ ASCII_DIGIT*)
-    ~ ("." ~ ASCII_DIGIT*)?
-    ~ (^"e" ~ ("+" | "-")? ~ ASCII_DIGIT+)?
-}
+boolean_value = { "true" | "false" }
+null_value = { "null" }
 
 // These rules enable implicit whitespace. For more information, visit:
 // https://pest.rs/book/grammars/syntax.html#implicit-whitespace

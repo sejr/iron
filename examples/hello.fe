@@ -1,7 +1,3 @@
-function sayHello(to name: String) -> String {
-    return "Hello, ${name}!"
-}
-
 function main {
-    printLine(sayHello(to: "world"))
+    assert("This string", isEqualTo: someOtherString)
 }

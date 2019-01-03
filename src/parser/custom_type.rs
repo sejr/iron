@@ -1,6 +1,7 @@
+use pest::iterators::Pair;
 use crate::parser::{ Rule, statement::Statement };
 
-fn parse_attribute(attr: pest::iterators::Pair<'_, Rule>) -> (String, String) {
+fn parse_attribute(attr: Pair<Rule>) -> (String, String) {
     let mut name = String::new();
     let mut kind = String::new();
     
@@ -16,9 +17,7 @@ fn parse_attribute(attr: pest::iterators::Pair<'_, Rule>) -> (String, String) {
     (name, kind)
 }
 
-fn parse_attr_list(
-    attrs: pest::iterators::Pair<'_, Rule>
-) -> Vec<(String, String)> {
+fn parse_attr_list(attrs: Pair<Rule>) -> Vec<(String, String)> {
     let mut results: Vec<(String, String)> = Vec::new();
     
     for node in attrs.into_inner() {
@@ -32,7 +31,7 @@ fn parse_attr_list(
     results
 }
 
-pub fn parse(custom_type: pest::iterators::Pair<'_, Rule>) -> Statement {
+pub fn parse(custom_type: Pair<Rule>) -> Statement {
     let mut name = String::new();
     let mut attributes: Vec<(String, String)> = Vec::new();
     let mut public: bool = false;
