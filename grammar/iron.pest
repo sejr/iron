@@ -197,18 +197,25 @@ op_multiply = { "*" }
 op_divide = { "/" }
 op_reference = { "@" }
 
+// These operators are typically used with numeric values, such as Integers or
+// Floats, though any type can adhere to the protocols necessary to use them.
 numerical_comp = _{ op_gt | op_gte | op_lt | op_lte }
     op_gt = { ">" }
     op_gte = { ">=" }
     op_lt = { "<" }
     op_lte = { "<=" }
 
+// Logic operators are typically used with Boolean values, though any type
+// can adhere to the protocols necessary to use them.
 logic_op = _{ logic_and | logic_or | logic_xor }
 	logic_and = { "and" | "&&" }
     logic_or = { "or" | "||" }
     logic_xor = { "xor" }
     logic_not = { "!" | "not" }
 
+// Bitwise operators are typically used in numeric values, operating at the
+// bit level. Like with the other op categories, they have protocols that
+// allow any type to define custom behavior.
 bitwise_op = _{ bitwise_and | bitwise_or | bitwise_xor }
     bitwise_and = { "&" }
     bitwise_or = { "|" }
@@ -216,14 +223,13 @@ bitwise_op = _{ bitwise_and | bitwise_or | bitwise_xor }
 
 unary_op = _{ logic_not | op_subtract }
 
-// It's time to talk about how EQUALS works. Basically, to avoid getting trapped
-// forever in a left-recursive grammar, we use expression rules that have a
-// built-in heirarchy. With the help of Pest, the AST ends up hiding a lot of
-// this mess, making it very easy to parse rather complicated expressions.
+// It's time to talk about how OP_SEQUENCE works. Basically, to avoid getting
+// trapped forever in a left-recursive grammar, we use expression rules that 
+// have a built-in heirarchy. With the help of Pest, the AST ends up hiding a
+// lot of this mess, making it easy to parse rather complicated expressions.
 //
 // For more information:
 // https://www.craftinginterpreters.com/parsing-expressions.html
-
 op_sequence = { bitwise_comp ~ ((op_eq | op_neq) ~ bitwise_comp)* }
 bitwise_comp = _{ logic_comp ~ (bitwise_op ~ logic_comp)* }
 logic_comp = _{ num_comp ~ (logic_op ~ num_comp)* }
