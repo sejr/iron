@@ -195,14 +195,26 @@ op_subtract = { "-" }
 op_pow = { "**" }
 op_multiply = { "*" }
 op_divide = { "/" }
-op_gt = { ">" }
-op_gte = { ">=" }
-op_lt = { "<" }
-op_lte = { "<=" }
-op_and = { "and" | "&&" }
-op_or = { "or" | "||" }
-op_xor = { "xor" }
-op_not = { "!" | "not" }
+op_reference = { "@" }
+
+numerical_comp = _{ op_gt | op_gte | op_lt | op_lte }
+    op_gt = { ">" }
+    op_gte = { ">=" }
+    op_lt = { "<" }
+    op_lte = { "<=" }
+
+logic_op = _{ logic_and | logic_or | logic_xor }
+	logic_and = { "and" | "&&" }
+    logic_or = { "or" | "||" }
+    logic_xor = { "xor" }
+    logic_not = { "!" | "not" }
+
+bitwise_op = _{ bitwise_and | bitwise_or | bitwise_xor }
+    bitwise_and = { "&" }
+    bitwise_or = { "|" }
+    bitwise_xor = { "^" }
+
+unary_op = _{ logic_not | op_subtract }
 
 // It's time to talk about how EQUALS works. Basically, to avoid getting trapped
 // forever in a left-recursive grammar, we use expression rules that have a
@@ -212,12 +224,13 @@ op_not = { "!" | "not" }
 // For more information:
 // https://www.craftinginterpreters.com/parsing-expressions.html
 
-op_sequence = { logic_comp ~ ((op_eq | op_neq) ~ logic_comp)* }
-logic_comp = _{ num_comp ~ ((op_and | op_or | op_xor) ~ num_comp)* }
-num_comp = _{ add_sub ~ ((op_gt | op_gte | op_lt | op_lte) ~ add_sub)* }
+op_sequence = { bitwise_comp ~ ((op_eq | op_neq) ~ bitwise_comp)* }
+bitwise_comp = _{ logic_comp ~ (bitwise_op ~ logic_comp)* }
+logic_comp = _{ num_comp ~ (logic_op ~ num_comp)* }
+num_comp = _{ add_sub ~ (numerical_comp ~ add_sub)* }
 add_sub = _{ mtp_div ~ ((op_add | op_subtract) ~ mtp_div)* }
 mtp_div = _{ unary ~ ((op_pow | op_multiply | op_divide) ~ unary)* }
-unary = _{ (op_not | op_subtract) ~ unary | value }
+unary = _{ unary_op ~ unary | value }
 
 // A value can be one of many different literal types. However, it can also
 // wrap an expression in parentheses; in that case, we go all the way back up
@@ -228,6 +241,7 @@ value = _{
     | numeric_value
     | boolean_value
     | null_value
+    | reference
     | identifier
     | "(" ~ expression ~ ")"
 }
@@ -249,6 +263,8 @@ char = {
 }
 boolean_value = { "true" | "false" }
 null_value = { "null" }
+
+reference = { "@" ~ identifier }
 
 // These rules enable implicit whitespace. For more information, visit:
 // https://pest.rs/book/grammars/syntax.html#implicit-whitespace
