@@ -139,7 +139,12 @@ value = {
 expression = {
     assignment
     | function_call
-    | value 
+    | return_stmt
+    | value
+}
+
+return_stmt = {
+    "return" ~ expression
 }
 
 assignment = {

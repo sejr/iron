@@ -5,11 +5,11 @@ use crate::parser::{
     expression::{ Expression, parse_expression }
 };
 
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub struct Parameter {
-    label: String,
-    name: String,
-    kind: String
+    pub label: String,
+    pub name: String,
+    pub kind: String
 }
 
 fn parse_param(param: Pair<Rule>) -> Parameter {

@@ -1,11 +1,12 @@
 use pest::iterators::Pair;
 use crate::parser::Rule;
 
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 #[allow(dead_code)]
 pub enum Expression {
     Assignment {
         identifier: String,
+        kind: Option<String>,
         value: Box<Expression>
     },
     FunctionCall {
@@ -16,7 +17,7 @@ pub enum Expression {
     Null
 }
 
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub struct FunctionArgument {
     label: Option<String>,
     value: Expression
@@ -65,12 +66,33 @@ fn parse_function_call(fn_call: Pair<Rule>) -> Expression {
     Expression::FunctionCall { identifier, arguments }
 }
 
+fn parse_assignment(expr: Pair<Rule>) -> Expression {
+    let mut identifier = String::new();
+    let mut value = Box::new(Expression::Null);
+    let mut kind = None;
+
+    for node in expr.into_inner() {
+        match node.as_rule() {
+            Rule::identifier => identifier = String::from(node.as_str()),
+            Rule::kind => kind = Some(String::from(node.as_str())),
+            Rule::expression => {
+                let parsed_value = parse_expression(node);
+                value = Box::new(parsed_value);
+            },
+            _ => unreachable!()
+        }
+    }
+
+    Expression::Assignment { identifier, value, kind }
+}
+
 pub fn parse_expression(expr: Pair<Rule>) -> Expression {
     let mut new_expr = Expression::Null;
 
     for node in expr.into_inner() {
         match node.as_rule() {
             Rule::function_call => new_expr = parse_function_call(node),
+            Rule::assignment => new_expr = parse_assignment(node),
             Rule::value => {
                 new_expr = Expression::Value {
                     as_string: String::from(node.as_str())

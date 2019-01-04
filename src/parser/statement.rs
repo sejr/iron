@@ -1,11 +1,11 @@
 use pest::iterators::Pair;
 use crate::parser::{ import, function, expression, custom_type, Rule };
 
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub enum Statement {
     Import {
         path: String,
-        identifier: Option<String>
+        name: String,
     },
     Type {
         public: bool,

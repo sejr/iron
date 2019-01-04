@@ -5,6 +5,7 @@ authors = ["Samuel Roth <sam@roth.fyi>"]
 edition = "2018"
 
 [dependencies]
+colored = "1.6"
 clap = "2.32.0"
 pest = "2.1.0"
 pest_derive = "2.1.0"
