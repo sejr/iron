@@ -149,11 +149,11 @@ thin_arrow = _{ "->" }
 wide_arrow = _{ "=>" }
 
 value = {
-    identifier
-    | string_literal
+    string_literal
     | numeric_value
     | boolean_value
     | null_value
+    | identifier
     | "(" ~ expression ~ ")"
 }
 
