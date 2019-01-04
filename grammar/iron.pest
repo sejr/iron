@@ -13,7 +13,7 @@
 //                                                                            //
 //                    L A N G U A G E     G R A M M A R                       //
 //                                                                            //
-// LAST REVISED 28 DECEMBER, 2018                                             //
+// LAST REVISED 4 JANUARY, 2019                                               //
 //                                                                            //
 // The purpose of this document is to provide a SINGLE SOURCE OF TRUTH for    //
 // the syntax of the Iron programming language. Any proposals to the language //
@@ -38,7 +38,10 @@
 // them as PUBLIC.
 module = { statement_list }
 
-// An Iron module consists of one or more STATEMENTS.
+// An Iron module consists of one or more statements. All statements except for
+// the import statement can be marked as `public`. If a statement is marked as
+// public, then it can be imported into other Iron modules. Otherwise, it can
+// only be accessed from within the module itself.
 statement_list = _{ statement* }
 statement = {
     import
@@ -46,8 +49,15 @@ statement = {
     | custom_type
 }
 
+// As you will see, we define rules for many keywords because we want to include
+// them in our AST. String literals inside rules that are not keywords end up
+// being ignored by the parser (because the rule itself provides enough info).
 public = { "public" }
 
+// Custom types are composed from base types and other custom types. Once a type
+// is defined, it can implement protocols in order to acquire superpowers. If
+// a type doesn't adhere to any protocols, it behaves more like a Rust struct
+// or TypeScript interface.
 custom_type = {
     (public? ~ "type"
         ~ identifier
@@ -56,19 +66,31 @@ custom_type = {
         ~ close_brace)
 }
 
-attribute_list = {
-    attribute ~ (comma ~ attribute)?
-}
-
+// Custom types define a series of attributes; each attribute has a name and
+// an associated type. Unlike function parameters, type attributes do not have
+// a label; you refer to the attributes directly by their name.
+attribute_list = { attribute ~ (comma ~ attribute)? }
 attribute = { identifier ~ colon ~ kind }
 
 // The IMPORT statement allows us to retrieve Iron code from some external
 // location. You can import an entire module or specific public components.
-import = { 
-    ("import" 
+import = {
+    // The first way you can import from a module is by specifying specific
+    // components you want from the module. This will search the environment
+    // for the target module and, if the associated components are public,
+    // we expose them directly to the host module.
+    ("import"
         ~ open_brace ~ identifier_list ~ close_brace
         ~ "from" ~ string_literal)
+    
+    // The next way to import a module is to retrieve it in its entirety,
+    // changing its name to something you deem fit. This is useful if you have
+    // another component with a conflicting name.
     | ("import" ~ string_literal ~ "as" ~ identifier)
+
+    // If you do not want to rename the module, you can just import the path
+    // directly. When you do this, the file stem of the module (e.g. `Apple`
+    // for `Apple.fe`) will be used as the module identifier.
     | ("import" ~ string_literal)
 }
 
@@ -96,6 +118,7 @@ function_parameter_list = {
 // a label system that helps developers write more verbose code.
 function_parameter = { (label ~ identifier ~ colon ~ kind) }
 
+// The return statement just lists different types.
 returns = { thin_arrow ~ kind ~ (comma ~ kind)* }
 
 label = { identifier | underscore }
@@ -131,6 +154,7 @@ value = {
     | numeric_value
     | boolean_value
     | null_value
+    | "(" ~ expression ~ ")"
 }
 
 // Order matters here. Specifically, we have value in the last position because
@@ -140,7 +164,41 @@ expression = {
     assignment
     | function_call
     | return_stmt
-    | value
+
+    // Special rule; see below for more information.
+    | equals
+}
+
+op_eq = { "equals" | "==" }
+op_add = { "+" }
+op_subtract = { "-" }
+op_pow = { "**" }
+op_multiply = { "*" }
+op_divide = { "/" }
+op_not = { "!" | "not" }
+op_gt = { ">" }
+op_gte = { ">=" }
+op_lt = { "<" }
+op_lte = { "<=" }
+
+equals = _{
+    comparison ~ (op_eq ~ comparison)*
+}
+
+comparison = _{
+    addition ~ ((op_gt | op_gte | op_lt | op_lte) ~ addition)*
+}
+
+addition = _{
+    multiplication ~ ((op_add | op_subtract) ~ multiplication)*
+}
+
+multiplication = _{
+	unary ~ ((op_pow | op_multiply | op_divide) ~ unary)*
+}
+
+unary = _{
+	(op_not | op_subtract) ~ unary | value
 }
 
 return_stmt = {
