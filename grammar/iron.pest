@@ -128,15 +128,15 @@ identifier_list = { identifier ~ (comma ~ identifier)* }
 // Kind is used to identify types. This is crucial because, not only can we
 // utilize base and custom Types, but we also have syntax that can indicate
 // collections of these different types.
-kind = _{
-    identifier_list
+kind = {
+    identifier
     | kind_list
     | kind_set
 }
 
 // [!] NOTE -- These don't really work very well yet.
 kind_list = { (open_bracket ~ identifier ~ close_bracket) }
-kind_set = { (open_paren ~ kind ~ close_paren) }
+kind_set = { (open_paren ~ kind ~ (comma ~ kind)* ~ close_paren) }
 
 assignment = {
     ("let" | "const")
@@ -162,11 +162,10 @@ return_stmt = { "return" ~ expression }
 // would not be handled correctly.
 expression = {
     assignment
-    | function_call
     | return_stmt
 
     // Special rule; see below for more information.
-    | equals
+    | op_sequence
 }
 
 // This section contains various tokens that need to be caught by the Pest
@@ -187,7 +186,7 @@ wide_arrow = _{ "=>" }
 // These are the various operators that can be used in Iron expressions.
 // Unlike the other tokens above (e.g. COMMA, COLON, UNDERSCORE), we do not
 // hide their values from our resulting AST. Instead, we hide all of the nested
-// expression handlers (e.g. EQUALS, LOGICAL_COMPARE). This means that we will
+// expression handlers (e.g. OP_SEQUENCE, LOGICAL_COMPARE). This means that we
 // see the actual operators instead of tons and tons of nested statements.
 op_eq = { "equals" | "==" }
 op_neq = { "!=" }
@@ -213,18 +212,19 @@ op_not = { "!" | "not" }
 // For more information:
 // https://www.craftinginterpreters.com/parsing-expressions.html
 
-equals = _{ logic_comp ~ ((op_eq | op_neq) ~ logic_comp)* }
+op_sequence = { logic_comp ~ ((op_eq | op_neq) ~ logic_comp)* }
 logic_comp = _{ num_comp ~ ((op_and | op_or | op_xor) ~ num_comp)* }
 num_comp = _{ add_sub ~ ((op_gt | op_gte | op_lt | op_lte) ~ add_sub)* }
-add_sub = _{ multiplication ~ ((op_add | op_subtract) ~ multiplication)* }
-multiplication = _{ unary ~ ((op_pow | op_multiply | op_divide) ~ unary)* }
+add_sub = _{ mtp_div ~ ((op_add | op_subtract) ~ mtp_div)* }
+mtp_div = _{ unary ~ ((op_pow | op_multiply | op_divide) ~ unary)* }
 unary = _{ (op_not | op_subtract) ~ unary | value }
 
 // A value can be one of many different literal types. However, it can also
 // wrap an expression in parentheses; in that case, we go all the way back up
 // and start the expression parsing again.
-value = {
+value = _{
     string_literal
+    | function_call
     | numeric_value
     | boolean_value
     | null_value
@@ -253,4 +253,7 @@ null_value = { "null" }
 // These rules enable implicit whitespace. For more information, visit:
 // https://pest.rs/book/grammars/syntax.html#implicit-whitespace
 WHITESPACE = _{ " " | "\n" | "\r" }
-COMMENT = _{ "/*" ~ (!"*/" ~ ANY)* ~ "*/" }
+COMMENT = _{
+    ("/*" ~ (!"*/" ~ ANY)* ~ "*/") // Block comment
+    | ("//" ~ (!"\n" ~ ANY)* ~ "\n") // Line comment
+}

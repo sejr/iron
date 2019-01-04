@@ -22,7 +22,7 @@ fn parse_param(param: Pair<Rule>) -> Parameter {
             Rule::label => label = String::from(node.as_str()),
             Rule::identifier => name = String::from(node.as_str()),
             Rule::kind => kind = String::from(node.as_str()),
-            _ => unreachable!()
+            _ => println!("UNCHECKED RULE IN PARSE_PARAM: {:?}", node.as_rule())
         }
     }
 
@@ -35,7 +35,7 @@ fn parse_params(param_list: Pair<Rule>) -> Option<Vec<Parameter>> {
     for node in param_list.into_inner() {
         match node.as_rule() {
             Rule::function_parameter => params.push(parse_param(node)),
-            _ => unreachable!()
+            _ => println!("UNCHECKED RULE IN PARSE_PARAMS: {:?}", node.as_rule())
         }
     }
 
@@ -48,7 +48,7 @@ fn parse_returns(return_list: Pair<Rule>) -> Option<Vec<String>> {
     for node in return_list.into_inner() {
         match node.as_rule() {
             Rule::kind => returns.push(String::from(node.as_str())),
-            _ => unreachable!()
+            _ => println!("UNCHECKED RULE IN PARSE_RETURNS: {:?}", node.as_rule())
         }
     }
 
@@ -69,7 +69,7 @@ pub fn parse(function: Pair<Rule>) -> Statement {
             Rule::function_parameter_list => parameters = parse_params(node),
             Rule::returns => returns = parse_returns(node),
             Rule::expression => body.push(parse_expression(node)),
-            _ => println!("UNCHECKED RULE: {:?}", node.as_rule())
+            _ => println!("UNCHECKED RULE IN PARSE: {:?}", node.as_rule())
         }
     }
 

@@ -1,26 +1,6 @@
-public function sayHello(to name: String) -> String {
-    "Hello {name}!"
-}
-
-function takesIntegerReturnsInteger(_ number: I32) -> I32 {
-    number
-}
-
-function takesBoolReturnsNothing(with someMoreStuff: Bool) {
-    print("This function does not have a return type!")
-}
-
-function takesNothingReturnsString -> String {
-    "Hello world!"
-}
-
-public function takesNothingReturnsNothing {
-    print("Hmm! Interesting!")
-}
-
 function main {
-    let a: U32 = 1
-    let b = 2
+    let greeting: String = "Hello"
+    let target: String = " world!"
 
-    print(sayHello(to: "my little friend"))
+    print(greeting + target)
 }
