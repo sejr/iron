@@ -13,6 +13,7 @@ pub enum Expression {
         value: Box<Expression>
     },
     Stack { root: Vec<StackItem> },
+    Return { root: Vec<StackItem> },
     Value { as_string: String },
     Null
 }
@@ -122,7 +123,7 @@ pub fn parse_expression_list(expr: Pair<Rule>) -> Vec<Expression> {
     for node in expr.into_inner() {
         match node.as_rule() {
             Rule::assignment => expressions.push(parse_assignment(node)),
-            Rule::return_stmt => expressions.push(Expression::Null),
+            Rule::return_stmt => expressions.push(parse_return_stmt(node)),
             Rule::op_sequence => {
                 let root: Vec<StackItem> = parse_op_sequence(node);
                 expressions.push(Expression::Stack { root });
@@ -132,6 +133,18 @@ pub fn parse_expression_list(expr: Pair<Rule>) -> Vec<Expression> {
     }
 
     expressions
+}
+
+pub fn parse_return_stmt(expr: Pair<Rule>) -> Expression {
+    let mut root: Vec<StackItem> = Vec::new();
+    for node in expr.into_inner() {
+        match node.as_rule() {
+            Rule::op_sequence => root = parse_op_sequence(node),
+            _ => unreachable!()
+        }
+    }
+
+    Expression::Return { root }
 }
 
 pub fn parse_op_sequence(expr: Pair<Rule>) -> Vec<StackItem> {
@@ -177,7 +190,82 @@ pub fn parse_op_sequence(expr: Pair<Rule>) -> Vec<StackItem> {
                     item: OpSequenceItem::Operator { name: Op::Add }
                 });
             },
-            _ => println!("PARSING OP SEQUENCE {:?}", node.as_rule())
+            Rule::op_subtract => {
+                stack.push(StackItem::Singleton {
+                    item: OpSequenceItem::Operator { name: Op::Subtract }
+                });
+            },
+            Rule::op_pow => {
+                stack.push(StackItem::Singleton {
+                    item: OpSequenceItem::Operator { name: Op::Pow }
+                });
+            },
+            Rule::op_multiply => {
+                stack.push(StackItem::Singleton {
+                    item: OpSequenceItem::Operator { name: Op::Multiply }
+                });
+            },
+            Rule::op_divide => {
+                stack.push(StackItem::Singleton {
+                    item: OpSequenceItem::Operator { name: Op::Divide }
+                });
+            },
+            Rule::op_gt => {
+                stack.push(StackItem::Singleton {
+                    item: OpSequenceItem::Operator { name: Op::GreaterThan }
+                });
+            },
+            Rule::op_gte => {
+                stack.push(StackItem::Singleton {
+                    item: OpSequenceItem::Operator { name: Op::GreaterThanEqual }
+                });
+            },
+            Rule::op_lt => {
+                stack.push(StackItem::Singleton {
+                    item: OpSequenceItem::Operator { name: Op::LessThan }
+                });
+            },
+            Rule::op_lte => {
+                stack.push(StackItem::Singleton {
+                    item: OpSequenceItem::Operator { name: Op::LessThanEqual }
+                });
+            },
+            Rule::logic_and => {
+                stack.push(StackItem::Singleton {
+                    item: OpSequenceItem::Operator { name: Op::LogicalAnd }
+                });
+            },
+            Rule::logic_or => {
+                stack.push(StackItem::Singleton {
+                    item: OpSequenceItem::Operator { name: Op::LogicalOr }
+                });
+            },
+            Rule::logic_xor => {
+                stack.push(StackItem::Singleton {
+                    item: OpSequenceItem::Operator { name: Op::LogicalXor }
+                });
+            },
+            Rule::logic_not => {
+                stack.push(StackItem::Singleton {
+                    item: OpSequenceItem::Operator { name: Op::LogicalNot }
+                });
+            },
+            Rule::bitwise_and => {
+                stack.push(StackItem::Singleton {
+                    item: OpSequenceItem::Operator { name: Op::BitwiseAnd }
+                });
+            },
+            Rule::bitwise_or => {
+                stack.push(StackItem::Singleton {
+                    item: OpSequenceItem::Operator { name: Op::BitwiseOr }
+                });
+            },
+            Rule::bitwise_xor => {
+                stack.push(StackItem::Singleton {
+                    item: OpSequenceItem::Operator { name: Op::BitwiseXor }
+                });
+            },
+            _ => println!("Unexpected value in sequence: {:?}", node.as_rule())
         }
     }
 

@@ -1,0 +1,131 @@
+Module {
+    name: "hello",
+    environment: {
+        "hello": Function {
+            public: false,
+            name: "hello",
+            parameters: Some(
+                [
+                    Parameter {
+                        label: "to",
+                        name: "name",
+                        kind: "String"
+                    }
+                ]
+            ),
+            returns: Some(
+                [
+                    "String"
+                ]
+            ),
+            body: [
+                Return {
+                    root: [
+                        Singleton {
+                            item: StringValue {
+                                value: "\"Hello {name}!\""
+                            }
+                        }
+                    ]
+                }
+            ]
+        },
+        "main": Function {
+            public: false,
+            name: "main",
+            parameters: None,
+            returns: None,
+            body: [
+                Assignment {
+                    identifier: "greeting",
+                    kind: Some(
+                        "String"
+                    ),
+                    value: Stack {
+                        root: [
+                            Singleton {
+                                item: StringValue {
+                                    value: "\"Hello\""
+                                }
+                            }
+                        ]
+                    }
+                },
+                Assignment {
+                    identifier: "target",
+                    kind: Some(
+                        "String"
+                    ),
+                    value: Stack {
+                        root: [
+                            Singleton {
+                                item: StringValue {
+                                    value: "\" world!\""
+                                }
+                            }
+                        ]
+                    }
+                },
+                Stack {
+                    root: [
+                        Singleton {
+                            item: FunctionCall {
+                                identifier: "assert",
+                                arguments: [
+                                    FunctionArgument {
+                                        label: None,
+                                        value: [
+                                            NestedStack {
+                                                root: [
+                                                    Singleton {
+                                                        item: Identifier {
+                                                            name: "greeting"
+                                                        }
+                                                    },
+                                                    Singleton {
+                                                        item: Operator {
+                                                            name: Add
+                                                        }
+                                                    },
+                                                    Singleton {
+                                                        item: Identifier {
+                                                            name: "target"
+                                                        }
+                                                    }
+                                                ]
+                                            },
+                                            Singleton {
+                                                item: Operator {
+                                                    name: EqualTo
+                                                }
+                                            },
+                                            Singleton {
+                                                item: FunctionCall {
+                                                    identifier: "hello",
+                                                    arguments: [
+                                                        FunctionArgument {
+                                                            label: Some(
+                                                                "to"
+                                                            ),
+                                                            value: [
+                                                                Singleton {
+                                                                    item: StringValue {
+                                                                        value: "\"world\""
+                                                                    }
+                                                                }
+                                                            ]
+                                                        }
+                                                    ]
+                                                }
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        }
+                    ]
+                }
+            ]
+        }
+    }
+}

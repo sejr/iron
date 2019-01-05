@@ -8,10 +8,13 @@ extern crate pest_derive;
 mod util;
 mod parser;
 
+use std::fs::File;
+use std::path::Path;
 use clap::{ App, Arg };
 use std::time::Instant;
+use std::io::prelude::*;
 
-fn main() {
+fn main() -> std::io::Result<()> {
     let matches = App::new("Forge").version("0.0.1")
         .author("Samuel Roth <sam@roth.fyi>")
         .about("Iron language toolkit")
@@ -54,9 +57,17 @@ fn main() {
             // If there are zero occurrences of the `-i` flag, then we just
             // evaluate the module as expected.
             match matches.occurrences_of("info") {
-                0 => (),
-                1 => util::profile(parse_time, module),
-                _ => println!("{:?}", module),
+                0 => Ok(()),
+                1 => Ok(util::profile(parse_time, module)),
+                _ => {
+                    let mod_str = format!("{}.ast", file);
+                    let path = Path::new(mod_str.as_str());
+                    let mut file = File::create(path)?;
+                    let module_debug = format!("{:#?}", module);
+                    file.write_all(module_debug.as_bytes())?;
+                    file.sync_all()?;
+                    Ok(())
+                },
             }
         
         // Something went while parsing the provided module. This error should
@@ -65,5 +76,7 @@ fn main() {
         } else {
             panic!("Error parsing module.");
         }
+    } else {
+        panic!("Something went wrong");
     }
 }
