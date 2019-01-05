@@ -6,6 +6,7 @@ extern crate colored;
 extern crate pest_derive;
 
 mod util;
+mod eval;
 mod parser;
 
 use std::fs::File;
@@ -56,6 +57,7 @@ fn main() -> std::io::Result<()> {
             //
             // If there are zero occurrences of the `-i` flag, then we just
             // evaluate the module as expected.
+
             match matches.occurrences_of("info") {
                 0 => Ok(()),
                 1 => Ok(util::profile(parse_time, module)),

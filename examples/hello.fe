@@ -1,8 +1,14 @@
+import "types/Apple" as Apple
+
 function hello(to name: String): String => return "Hello {name}!"
 
 function main {
     let greeting: String = "Hello"
     let target: String = " world!"
 
+    let hello = true
+    let goodbye = false
+
+    assert(not(hello equals goodbye))
     assert((greeting + target) == hello(to: "world"))
 }

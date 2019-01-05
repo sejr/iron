@@ -1,7 +1,8 @@
 use pest::iterators::Pair;
 use crate::parser::{
     Rule,
-    statement::Statement
+    statement::Statement,
+    string
 };
 
 #[derive(Clone, Debug)]
@@ -154,8 +155,19 @@ pub fn parse_op_sequence(expr: Pair<Rule>) -> Vec<StackItem> {
         match node.as_rule() {
             Rule::string_literal => {
                 let item = OpSequenceItem::StringValue {
-                    value: String::from(node.as_str())
+                    value: string::parse(node)
                 };
+                let stack_item = StackItem::Singleton { item };
+                stack.push(stack_item);
+            },
+            Rule::boolean_value => {
+                let value: bool;
+                match node.as_str() {
+                    "true" => value = true,
+                    "false" => value = false,
+                    _ => unreachable!()
+                }
+                let item = OpSequenceItem::BooleanValue { value };
                 let stack_item = StackItem::Singleton { item };
                 stack.push(stack_item);
             },
