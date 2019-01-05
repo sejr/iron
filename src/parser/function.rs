@@ -1,9 +1,71 @@
 use pest::iterators::Pair;
 use crate::parser::{
     Rule,
-    statement::Statement,
-    expression::{ Expression, parse_expression }
+    statement::Statement
 };
+
+#[derive(Clone, Debug)]
+#[allow(dead_code)]
+pub enum Expression {
+    Assignment {
+        identifier: String,
+        kind: Option<String>,
+        value: Box<Expression>
+    },
+    Stack { root: Vec<StackItem> },
+    Value { as_string: String },
+    Null
+}
+
+#[derive(Clone, Debug)]
+#[allow(dead_code)]
+pub enum OpSequenceItem {
+    Operator { name: Op },
+    Identifier { name: String },
+    StringValue { value: String },
+    BooleanValue { value: bool },
+    NumericValue { value: i32 },
+    FunctionCall {
+        identifier: String,
+        arguments: Vec<FunctionArgument>
+    }
+}
+
+#[derive(Clone, Debug)]
+#[allow(dead_code)]
+pub enum StackItem {
+    Singleton { item: OpSequenceItem },
+    NestedStack { root: Vec<StackItem> }
+}
+
+#[derive(Clone, Debug)]
+#[allow(dead_code)]
+pub enum Op {
+    EqualTo,
+    NotEqualTo,
+    Add,
+    Subtract,
+    Pow,
+    Multiply,
+    Divide,
+    GreaterThan,
+    GreaterThanEqual,
+    LessThan,
+    LessThanEqual,
+    LogicalAnd,
+    LogicalOr,
+    LogicalXor,
+    LogicalNot,
+    BitwiseAnd,
+    BitwiseOr,
+    BitwiseXor
+}
+
+#[derive(Clone, Debug)]
+pub struct FunctionArgument {
+    label: Option<String>,
+    value: Vec<StackItem>
+}
 
 #[derive(Clone, Debug)]
 pub struct Parameter {
@@ -55,6 +117,123 @@ fn parse_returns(return_list: Pair<Rule>) -> Option<Vec<String>> {
     Some(returns)
 }
 
+pub fn parse_expression_list(expr: Pair<Rule>) -> Vec<Expression> {
+    let mut expressions: Vec<Expression> = Vec::new();
+    for node in expr.into_inner() {
+        match node.as_rule() {
+            Rule::assignment => expressions.push(parse_assignment(node)),
+            Rule::return_stmt => expressions.push(Expression::Null),
+            Rule::op_sequence => {
+                let root: Vec<StackItem> = parse_op_sequence(node);
+                expressions.push(Expression::Stack { root });
+            },
+            _ => panic!("Unhandled expression: {:?}", node.as_rule())
+        }
+    }
+
+    expressions
+}
+
+pub fn parse_op_sequence(expr: Pair<Rule>) -> Vec<StackItem> {
+    let mut stack: Vec<StackItem> = Vec::new();
+
+    for node in expr.into_inner() {
+        match node.as_rule() {
+            Rule::string_literal => {
+                let item = OpSequenceItem::StringValue {
+                    value: String::from(node.as_str())
+                };
+                let stack_item = StackItem::Singleton { item };
+                stack.push(stack_item);
+            },
+            Rule::identifier => {
+                let name = String::from(node.as_str());
+                let item = OpSequenceItem::Identifier { name };
+                let stack_item = StackItem::Singleton { item };
+                stack.push(stack_item);
+            }
+            Rule::function_call => {
+                let item: OpSequenceItem = parse_function_call(node);
+                let stack_item = StackItem::Singleton { item };
+                stack.push(stack_item);
+            },
+            Rule::op_sequence => {
+                let root: Vec<StackItem> = parse_op_sequence(node);
+                let stack_item = StackItem::NestedStack { root };
+                stack.push(stack_item);
+            },
+            Rule::op_eq => {
+                stack.push(StackItem::Singleton {
+                    item: OpSequenceItem::Operator { name: Op::EqualTo }
+                });
+            },
+            Rule::op_neq => {
+                stack.push(StackItem::Singleton {
+                    item: OpSequenceItem::Operator { name: Op::NotEqualTo }
+                });
+            },
+            Rule::op_add => {
+                stack.push(StackItem::Singleton {
+                    item: OpSequenceItem::Operator { name: Op::Add }
+                });
+            },
+            _ => println!("PARSING OP SEQUENCE {:?}", node.as_rule())
+        }
+    }
+
+    stack
+}
+
+fn parse_fn_arg(arg: Pair<Rule>) -> FunctionArgument {
+    let mut label = None;
+    let mut value: Vec<StackItem> = Vec::new();
+
+    for node in arg.into_inner() {
+        match node.as_rule() {
+            Rule::label => label = Some(String::from(node.as_str())),
+            Rule::op_sequence => value = parse_op_sequence(node),
+            _ => println!("UNCHECKED RULE: {:?}", node.as_rule())
+        }
+    }
+
+    FunctionArgument { label, value }
+}
+
+fn parse_function_call(fn_call: Pair<Rule>) -> OpSequenceItem {
+    let mut identifier = String::new();
+    let mut arguments: Vec<FunctionArgument> = Vec::new();
+
+    for node in fn_call.into_inner() {
+        match node.as_rule() {
+            Rule::identifier => identifier = String::from(node.as_str()),
+            Rule::function_arg => arguments.push(parse_fn_arg(node)),
+            _ => println!("UNCHECKED RULE: {:?}", node.as_rule())
+        }
+    }
+
+    OpSequenceItem::FunctionCall { identifier, arguments }
+}
+
+pub fn parse_assignment(expr: Pair<Rule>) -> Expression {
+    let mut identifier = String::new();
+    let mut value = Box::new(Expression::Null);
+    let mut kind = None;
+
+    for node in expr.into_inner() {
+        match node.as_rule() {
+            Rule::identifier => identifier = String::from(node.as_str()),
+            Rule::kind => kind = Some(String::from(node.as_str())),
+            Rule::op_sequence => {
+                let root: Vec<StackItem> = parse_op_sequence(node);
+                value = Box::new(Expression::Stack { root });
+            },
+            _ => println!("{:?}", node.as_rule())
+        }
+    }
+
+    Expression::Assignment { identifier, value, kind }
+}
+
 pub fn parse(function: Pair<Rule>) -> Statement {
     let mut name = String::from("");
     let mut parameters = None;
@@ -68,7 +247,7 @@ pub fn parse(function: Pair<Rule>) -> Statement {
             Rule::identifier => name = String::from(node.as_str()),
             Rule::function_parameter_list => parameters = parse_params(node),
             Rule::returns => returns = parse_returns(node),
-            Rule::expression => body.push(parse_expression(node)),
+            Rule::expression_list => body = parse_expression_list(node),
             _ => println!("UNCHECKED RULE IN PARSE: {:?}", node.as_rule())
         }
     }

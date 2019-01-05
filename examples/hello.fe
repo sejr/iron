@@ -1,6 +1,8 @@
+function hello(to name: String): String => return "Hello {name}!"
+
 function main {
     let greeting: String = "Hello"
     let target: String = " world!"
 
-    print(greeting + target)
+    assert((greeting + target) == hello(to: "world"))
 }

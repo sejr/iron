@@ -7,7 +7,6 @@ pub mod statement;
 pub mod function;
 pub mod import;
 pub mod string;
-pub mod expression;
 pub mod custom_type;
 
 #[derive(Parser)]

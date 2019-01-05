@@ -1,5 +1,5 @@
 use pest::iterators::Pair;
-use crate::parser::{ import, function, expression, custom_type, Rule };
+use crate::parser::{ import, function, custom_type, Rule };
 
 #[derive(Clone, Debug)]
 pub enum Statement {
@@ -17,7 +17,7 @@ pub enum Statement {
         name: String,
         parameters: Option<Vec<function::Parameter>>,
         returns: Option<Vec<String>>,
-        body: Vec<expression::Expression>
+        body: Vec<function::Expression>
     },
     Error
 }
