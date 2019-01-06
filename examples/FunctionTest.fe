@@ -1,0 +1,23 @@
+public function a {
+    print("hello")
+}
+
+function b: String {
+    return "world"
+}
+
+function c(some value: String): String {
+    return value
+}
+
+function d => print("hello")
+
+function e: String => return c(some: "world")
+
+function f(some otherValue: String) => print(otherValue)
+
+function g(_ value: String): String => return f(some: "hello world")
+
+function main {
+    assert(b() equals e())
+}

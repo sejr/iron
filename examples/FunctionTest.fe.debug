@@ -1,0 +1,269 @@
+Module {
+    name: "FunctionTest",
+    environment: {
+        "f": Function {
+            public: false,
+            name: "f",
+            parameters: Some(
+                [
+                    Parameter {
+                        label: "some",
+                        name: "otherValue",
+                        kind: "String"
+                    }
+                ]
+            ),
+            returns: None,
+            body: [
+                Stack {
+                    root: [
+                        Singleton {
+                            item: FunctionCall {
+                                identifier: "print",
+                                arguments: [
+                                    FunctionArgument {
+                                        label: None,
+                                        value: [
+                                            Singleton {
+                                                item: Identifier {
+                                                    name: "otherValue"
+                                                }
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        }
+                    ]
+                }
+            ]
+        },
+        "main": Function {
+            public: false,
+            name: "main",
+            parameters: None,
+            returns: None,
+            body: [
+                Stack {
+                    root: [
+                        Singleton {
+                            item: FunctionCall {
+                                identifier: "assert",
+                                arguments: [
+                                    FunctionArgument {
+                                        label: None,
+                                        value: [
+                                            Singleton {
+                                                item: FunctionCall {
+                                                    identifier: "b",
+                                                    arguments: []
+                                                }
+                                            },
+                                            Singleton {
+                                                item: Operator {
+                                                    name: EqualTo
+                                                }
+                                            },
+                                            Singleton {
+                                                item: FunctionCall {
+                                                    identifier: "e",
+                                                    arguments: []
+                                                }
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        }
+                    ]
+                }
+            ]
+        },
+        "e": Function {
+            public: false,
+            name: "e",
+            parameters: None,
+            returns: Some(
+                [
+                    "String"
+                ]
+            ),
+            body: [
+                Return {
+                    root: [
+                        Singleton {
+                            item: FunctionCall {
+                                identifier: "c",
+                                arguments: [
+                                    FunctionArgument {
+                                        label: Some(
+                                            "some"
+                                        ),
+                                        value: [
+                                            Singleton {
+                                                item: StringValue {
+                                                    value: "world"
+                                                }
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        }
+                    ]
+                }
+            ]
+        },
+        "a": Function {
+            public: true,
+            name: "a",
+            parameters: None,
+            returns: None,
+            body: [
+                Stack {
+                    root: [
+                        Singleton {
+                            item: FunctionCall {
+                                identifier: "print",
+                                arguments: [
+                                    FunctionArgument {
+                                        label: None,
+                                        value: [
+                                            Singleton {
+                                                item: StringValue {
+                                                    value: "hello"
+                                                }
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        }
+                    ]
+                }
+            ]
+        },
+        "d": Function {
+            public: false,
+            name: "d",
+            parameters: None,
+            returns: None,
+            body: [
+                Stack {
+                    root: [
+                        Singleton {
+                            item: FunctionCall {
+                                identifier: "print",
+                                arguments: [
+                                    FunctionArgument {
+                                        label: None,
+                                        value: [
+                                            Singleton {
+                                                item: StringValue {
+                                                    value: "hello"
+                                                }
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        }
+                    ]
+                }
+            ]
+        },
+        "b": Function {
+            public: false,
+            name: "b",
+            parameters: None,
+            returns: Some(
+                [
+                    "String"
+                ]
+            ),
+            body: [
+                Return {
+                    root: [
+                        Singleton {
+                            item: StringValue {
+                                value: "world"
+                            }
+                        }
+                    ]
+                }
+            ]
+        },
+        "g": Function {
+            public: false,
+            name: "g",
+            parameters: Some(
+                [
+                    Parameter {
+                        label: "_",
+                        name: "value",
+                        kind: "String"
+                    }
+                ]
+            ),
+            returns: Some(
+                [
+                    "String"
+                ]
+            ),
+            body: [
+                Return {
+                    root: [
+                        Singleton {
+                            item: FunctionCall {
+                                identifier: "f",
+                                arguments: [
+                                    FunctionArgument {
+                                        label: Some(
+                                            "some"
+                                        ),
+                                        value: [
+                                            Singleton {
+                                                item: StringValue {
+                                                    value: "hello world"
+                                                }
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        }
+                    ]
+                }
+            ]
+        },
+        "c": Function {
+            public: false,
+            name: "c",
+            parameters: Some(
+                [
+                    Parameter {
+                        label: "some",
+                        name: "value",
+                        kind: "String"
+                    }
+                ]
+            ),
+            returns: Some(
+                [
+                    "String"
+                ]
+            ),
+            body: [
+                Return {
+                    root: [
+                        Singleton {
+                            item: Identifier {
+                                name: "value"
+                            }
+                        }
+                    ]
+                }
+            ]
+        }
+    }
+}

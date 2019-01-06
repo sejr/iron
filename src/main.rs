@@ -62,7 +62,7 @@ fn main() -> std::io::Result<()> {
                 0 => Ok(()),
                 1 => Ok(util::profile(parse_time, module)),
                 _ => {
-                    let mod_str = format!("{}.ast", file);
+                    let mod_str = format!("{}.debug", file);
                     let path = Path::new(mod_str.as_str());
                     let mut file = File::create(path)?;
                     let module_debug = format!("{:#?}", module);
