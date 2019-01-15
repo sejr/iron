@@ -82,3 +82,61 @@ fn main() -> std::io::Result<()> {
         panic!("Something went wrong");
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use crate::parser;
+    use crate::parser::{ statement::Statement };
+
+    #[test]
+    fn hello() {
+        let hello_src = r#"
+        function hello(to name: String): String => return "Hello {name}!"
+        function main {
+            let greeting: String = "Hello"
+            let target: String = " world!"
+
+            let hello = true
+            let goodbye = false
+
+            assert(not(hello equals goodbye))
+            assert((greeting + target) == hello(to: "world"))
+        }
+        "#;
+        if let Some(hello_module) = parser::parse_str("hello", hello_src) {
+            let _entry = hello_module.entry().expect("Entry error");
+            let functions = hello_module.functions().expect("Functions error");
+
+            // We have defined one function: `hello`
+            assert!(functions.len() == 1);
+            let hello_fn = functions[0];
+            match hello_fn {
+                Statement::Function {
+                    public,
+                    name,
+                    parameters,
+                    returns,
+                    body: _
+                } => {
+                    assert!(*public == false);
+                    assert!(name == "hello");
+
+                    match parameters {
+                        Some(params) => {
+                            assert!(params.len() == 1);
+                        },
+                        None => panic!("expected params")
+                    }
+
+                    match returns {
+                        Some(rets) => {
+                            assert!(rets.len() == 1);
+                        },
+                        None => panic!("expected returns")
+                    }
+                },
+                _ => panic!("expected `hello` function")
+            }
+        }
+    }
+}

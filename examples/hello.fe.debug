@@ -1,6 +1,35 @@
 Module {
     name: "hello",
     environment: {
+        "hello": Function {
+            public: false,
+            name: "hello",
+            parameters: Some(
+                [
+                    Parameter {
+                        label: "to",
+                        name: "name",
+                        kind: "String"
+                    }
+                ]
+            ),
+            returns: Some(
+                [
+                    "String"
+                ]
+            ),
+            body: [
+                Return {
+                    root: [
+                        Singleton {
+                            item: StringValue {
+                                value: "Hello {name}!"
+                            }
+                        }
+                    ]
+                }
+            ]
+        },
         "main": Function {
             public: false,
             name: "main",
@@ -163,39 +192,6 @@ Module {
                     ]
                 }
             ]
-        },
-        "hello": Function {
-            public: false,
-            name: "hello",
-            parameters: Some(
-                [
-                    Parameter {
-                        label: "to",
-                        name: "name",
-                        kind: "String"
-                    }
-                ]
-            ),
-            returns: Some(
-                [
-                    "String"
-                ]
-            ),
-            body: [
-                Return {
-                    root: [
-                        Singleton {
-                            item: StringValue {
-                                value: "Hello {name}!"
-                            }
-                        }
-                    ]
-                }
-            ]
-        },
-        "Apple": Import {
-            path: "types/Apple",
-            name: "Apple"
         }
     }
 }

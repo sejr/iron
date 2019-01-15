@@ -1,0 +1,14 @@
+import { Add } from "../protocols/Add"
+
+public type Point = {
+    x: I32,
+    y: I32
+}
+
+implement Add for Point {
+    function add(_ lhs: Self, _ rhs: Point): Point {
+        let x = lhs.x + rhs.x
+        let y = lhs.y + rhs.y
+        return Point { x, y }
+    }
+}

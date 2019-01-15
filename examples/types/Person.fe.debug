@@ -1,0 +1,19 @@
+Module {
+    name: "Person",
+    environment: {
+        "Person": Type {
+            public: true,
+            name: "Person",
+            attributes: [
+                (
+                    "name",
+                    "String"
+                ),
+                (
+                    "age",
+                    "U8"
+                )
+            ]
+        }
+    }
+}

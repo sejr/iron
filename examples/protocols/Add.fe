@@ -1,0 +1,3 @@
+public protocol Add {
+    function add(_ lhs: Self, _ rhs: Type): Type
+}

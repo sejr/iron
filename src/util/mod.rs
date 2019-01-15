@@ -29,7 +29,7 @@ pub fn print_statement(stmt: &Statement) {
 
             print!("{}", name.yellow());
             if let Some(parameters) = parameters {
-                print!(" (");
+                print!("(");
                 for parameter in parameters {
                     print!("{} {}: {}", 
                         parameter.label,
@@ -41,7 +41,7 @@ pub fn print_statement(stmt: &Statement) {
 
             if let Some(returns) = returns {
                 for ret in returns {
-                    print!(" -> {}", ret.cyan().italic());
+                    print!(": {}", ret.cyan().italic());
                 }
             }
 

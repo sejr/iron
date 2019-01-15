@@ -13,6 +13,24 @@ pub mod custom_type;
 #[grammar = "../grammar/iron.pest"]
 pub struct IronParser;
 
+#[allow(dead_code)]
+pub fn parse_str(name: &str, code: &str) -> Option<module::Module> {
+    let ast = IronParser::parse(Rule::module, code)
+        .unwrap_or_else(|e| panic!("{}", e));
+
+    let mut parser_result: Option<module::Module> = None;
+    for node in ast {
+        match node.as_rule() {
+            Rule::module => {
+                parser_result = Some(module::parse(name, node));  
+            },
+            _ => unreachable!()
+        }
+    }
+
+    parser_result
+}
+
 pub fn parse(path: &str) -> Option<module::Module> {
     let module_name = Path::new(path)
         .file_stem()

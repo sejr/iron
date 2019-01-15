@@ -1,0 +1,15 @@
+Module {
+    name: "Orange",
+    environment: {
+        "Orange": Type {
+            public: true,
+            name: "Orange",
+            attributes: [
+                (
+                    "nickname",
+                    "String"
+                )
+            ]
+        }
+    }
+}

@@ -46,11 +46,11 @@ impl Module {
         println!();
     }
 
-    fn entry(&self) -> Option<&Statement> {
+    pub fn entry(&self) -> Option<&Statement> {
         self.environment.get("main")
     }
 
-    fn imports(&self) -> Option<Vec<&Statement>> {
+    pub fn imports(&self) -> Option<Vec<&Statement>> {
         self.environment.keys().filter(|statement| {
             match self.environment
                 .get(*statement)
@@ -67,7 +67,7 @@ impl Module {
     // Note that this function does not return the `main` function. This is
     // because `main` serves as the entry point to the module and is never meant
     // to be accessed outside the module.
-    fn functions(&self) -> Option<Vec<&Statement>> {
+    pub fn functions(&self) -> Option<Vec<&Statement>> {
         self.environment.keys().filter(|statement| {
             match self.environment
                 .get(*statement)
@@ -83,7 +83,7 @@ impl Module {
         }).collect()
     }
 
-    fn types(&self) -> Option<Vec<&Statement>> {
+    pub fn types(&self) -> Option<Vec<&Statement>> {
         self.environment.keys().filter(|statement| {
             match self.environment
                 .get(*statement)

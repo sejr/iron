@@ -1,5 +1,3 @@
-import "types/Apple" as Apple
-
 function hello(to name: String): String => return "Hello {name}!"
 
 function main {
